@@ -5,10 +5,10 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 // ------------------- PATCH (Update Article) -------------------
 export async function PATCH(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> } // ✅ Must be a Promise
+  context: { params: { id: string } } // ✅ Correct type
 ) {
   try {
-    const { id } = await context.params; // ✅ Await the promise to get the id
+    const { id } = context.params;
 
     const user = await currentUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -70,10 +70,10 @@ export async function PATCH(
 // ------------------- DELETE (Delete Article) -------------------
 export async function DELETE(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> } // ✅ Must be a Promise
+  context: { params: { id: string } } // ✅ Correct type
 ) {
   try {
-    const { id } = await context.params; // ✅ Await the promise to get the id
+    const { id } = context.params;
 
     const user = await currentUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
