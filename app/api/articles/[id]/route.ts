@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
-// ------------------- PATCH -------------------
+// ------------------- PATCH (Update Article) -------------------
 export async function PATCH(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> } // ✅ Must be Promise
+  context: { params: Promise<{ id: string }> } // ✅ Must be a Promise
 ) {
   try {
-    const { id } = await context.params; // ✅ Await the Promise
+    const { id } = await context.params; // ✅ Await the promise to get the id
 
     const user = await currentUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -25,9 +25,10 @@ export async function PATCH(
     const body = await request.json();
     const { title, slug, content, excerpt, cover_image, status } = body;
 
-    if (!title?.trim() || !content?.trim()) return NextResponse.json({ error: "Title and content are required" }, { status: 400 });
+    if (!title?.trim() || !content?.trim())
+      return NextResponse.json({ error: "Title and content are required" }, { status: 400 });
 
-    // Check slug conflict
+    // Check for slug conflicts
     if (slug) {
       const { data: existingArticle } = await supabaseAdmin
         .from("articles")
@@ -66,13 +67,13 @@ export async function PATCH(
   }
 }
 
-// ------------------- DELETE -------------------
+// ------------------- DELETE (Delete Article) -------------------
 export async function DELETE(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> } // ✅ Must be Promise
+  context: { params: Promise<{ id: string }> } // ✅ Must be a Promise
 ) {
   try {
-    const { id } = await context.params; // ✅ Await the Promise
+    const { id } = await context.params; // ✅ Await the promise to get the id
 
     const user = await currentUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
