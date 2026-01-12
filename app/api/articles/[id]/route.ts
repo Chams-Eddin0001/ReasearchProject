@@ -2,20 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
-type Params = { id: string };
-
 // ------------------- PATCH (Update Article) -------------------
 export async function PATCH(
   request: NextRequest,
-  context: { params: Params }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = context.params;
+    const { id } = await context.params;
 
     const user = await currentUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     // Fetch the article to verify ownership
     const { data: article, error: fetchError } = await supabaseAdmin
@@ -101,18 +97,14 @@ export async function PATCH(
 // ------------------- DELETE (Delete Article) -------------------
 export async function DELETE(
   request: NextRequest,
-  context: { params: Params }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = context.params;
+    const { id } = await context.params;
     console.log("DELETE API route called for article:", id);
 
     const user = await currentUser();
-    console.log("User ID from Clerk:", user?.id);
-
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     // Verify ownership
     const { data: article, error: fetchError } = await supabaseAdmin
@@ -121,8 +113,6 @@ export async function DELETE(
       .eq("id", id)
       .eq("created_by", user.id)
       .single();
-
-    console.log("Article lookup result:", { article, fetchError });
 
     if (fetchError || !article) {
       return NextResponse.json(
@@ -137,14 +127,10 @@ export async function DELETE(
       .delete()
       .eq("id", id);
 
-    console.log("Delete result:", { deleteError });
-
     if (deleteError) {
-      console.error("Delete error:", deleteError);
       return NextResponse.json({ error: deleteError.message }, { status: 500 });
     }
 
-    console.log("Article deleted successfully");
     return NextResponse.json({ success: true, message: "Article deleted successfully" });
   } catch (error: any) {
     console.error("Server error in DELETE route:", error);
