@@ -5,11 +5,11 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 // Update article
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await currentUser();
-    
+
     if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -17,13 +17,13 @@ export async function PATCH(
       );
     }
 
-    const { id: articleId } = await params;
+    const { id } = await context.params;
 
     // Verify ownership
     const { data: article, error: fetchError } = await supabaseAdmin
       .from('articles')
       .select('created_by')
-      .eq('id', articleId)
+      .eq('id', id)
       .single();
 
     if (fetchError || !article) {
@@ -56,7 +56,7 @@ export async function PATCH(
         .from('articles')
         .select('id')
         .eq('slug', slug)
-        .neq('id', articleId)
+        .neq('id', id)
         .maybeSingle();
 
       if (existingArticle) {
@@ -81,7 +81,7 @@ export async function PATCH(
     const { data: updatedArticle, error: updateError } = await supabaseAdmin
       .from('articles')
       .update(updateData)
-      .eq('id', articleId)
+      .eq('id', id)
       .select()
       .single();
 
@@ -106,15 +106,15 @@ export async function PATCH(
 // Delete article
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: articleId } = await params;
-    console.log('DELETE API route called for article:', articleId);
+    const { id } = await context.params;
+    console.log('DELETE API route called for article:', id);
 
     const user = await currentUser();
     console.log('User ID from Clerk:', user?.id);
-    
+
     if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -122,13 +122,13 @@ export async function DELETE(
       );
     }
 
-    console.log('Attempting to delete article:', articleId, 'by user:', user.id);
+    console.log('Attempting to delete article:', id, 'by user:', user.id);
 
     // Verify ownership
     const { data: article, error: fetchError } = await supabaseAdmin
       .from('articles')
       .select('created_by')
-      .eq('id', articleId)
+      .eq('id', id)
       .eq('created_by', user.id)
       .single();
 
@@ -146,7 +146,7 @@ export async function DELETE(
     const { error: deleteError } = await supabaseAdmin
       .from('articles')
       .delete()
-      .eq('id', articleId);
+      .eq('id', id);
 
     console.log('Delete result:', { deleteError });
 
