@@ -14,7 +14,7 @@ import { Building2, Search, UserPlus, UserCheck, UserX, Clock } from 'lucide-rea
 import { toast } from 'sonner';
 
 interface ResearcherWithStatus extends Profile {
-  friendship_status?: 'none' | 'pending_sent' | 'pending_received' | 'friends';
+  friendship_status?: 'none' | 'pending_sent' | 'pending_received' | 'friends' | 'self';
   friendship_id?: string;
 }
 
@@ -57,7 +57,7 @@ export default function ResearchersPage() {
 
       const researchersWithStatus = data.map((researcher) => {
         if (researcher.id === user.id) {
-          return { ...researcher, friendship_status: 'self' as any };
+          return { ...researcher, friendship_status: 'self' as const };
         }
 
         const friendship = friendships?.find(

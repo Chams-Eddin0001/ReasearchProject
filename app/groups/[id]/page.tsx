@@ -12,8 +12,8 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { CommentSection } from '@/components/comments/CommentSection';
-import { 
-  ArrowLeft, Users, Settings as SettingsIcon, 
+import {
+  ArrowLeft, Users, Settings as SettingsIcon,
   Image as ImageIcon, Video, FileText, ThumbsUp,
   Check, X
 } from 'lucide-react';
@@ -402,7 +402,7 @@ export default function GroupPage() {
                     rows={3}
                     className="mb-4"
                   />
-                  
+
                   {/* Media Type Selector */}
                   <div className="flex gap-2 mb-4">
                     <Button
@@ -515,7 +515,7 @@ export default function GroupPage() {
                             <div className="flex-1">
                               <div className="flex items-center justify-between mb-2">
                                 <div>
-                                  <Link 
+                                  <Link
                                     href={`/profile/${post.author?.id}`}
                                     className="font-medium hover:underline"
                                   >
@@ -561,9 +561,8 @@ export default function GroupPage() {
                               <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
                                 <button
                                   onClick={() => toggleLike(post.id, post.user_liked)}
-                                  className={`flex items-center gap-1 hover:text-blue-600 ${
-                                    post.user_liked ? 'text-blue-600' : ''
-                                  }`}
+                                  className={`flex items-center gap-1 hover:text-blue-600 ${post.user_liked ? 'text-blue-600' : ''
+                                    }`}
                                 >
                                   <ThumbsUp className="h-4 w-4" />
                                   {post.likes_count > 0 && post.likes_count}
@@ -577,8 +576,8 @@ export default function GroupPage() {
                                   entityType="group_post"
                                   currentUser={user ? {
                                     id: user.id,
-                                    full_name: profile?.full_name || user.firstName || 'User',
-                                    avatar_url: profile?.avatar_url || user.imageUrl,
+                                    full_name: profile?.full_name || 'User',
+                                    avatar_url: profile?.avatar_url ?? undefined,
                                   } : undefined}
                                 />
                               </div>

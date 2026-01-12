@@ -30,6 +30,8 @@ export interface Article {
   content?: string;
   excerpt?: string;
   cover_image?: string;
+  media_type?: 'video' | 'pdf' | null;
+  media_url?: string | null;
   status: 'draft' | 'published' | 'archived';
   published_at?: string;
   created_by: string;  // Changed to string for Clerk user ID

@@ -5,7 +5,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 // Update article
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await currentUser();
@@ -17,7 +17,7 @@ export async function PATCH(
       );
     }
 
-    const articleId = params.id;
+    const { id: articleId } = await params;
 
     // Verify ownership
     const { data: article, error: fetchError } = await supabaseAdmin
@@ -106,10 +106,11 @@ export async function PATCH(
 // Delete article
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    console.log('DELETE API route called for article:', params.id);
+    const { id: articleId } = await params;
+    console.log('DELETE API route called for article:', articleId);
 
     const user = await currentUser();
     console.log('User ID from Clerk:', user?.id);
@@ -121,7 +122,6 @@ export async function DELETE(
       );
     }
 
-    const articleId = params.id;
     console.log('Attempting to delete article:', articleId, 'by user:', user.id);
 
     // Verify ownership

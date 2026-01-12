@@ -4,7 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -16,7 +16,7 @@ export async function DELETE(
       );
     }
 
-    const commentId = params.id;
+    const { id: commentId } = await params;
 
     // Verify the user owns this comment
     const { data: comment, error: fetchError } = await supabaseAdmin

@@ -4,10 +4,10 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 // Increment article views
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const articleId = params.id;
+    const { id: articleId } = await params;
 
     // Get current views count
     const { data: article, error: fetchError } = await supabaseAdmin

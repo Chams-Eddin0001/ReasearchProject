@@ -119,7 +119,7 @@ export default function ArticleDetailPage() {
       await fetch(`/api/articles/${articleId}/views`, {
         method: 'POST',
       });
-      
+
       // Update local state
       if (article) {
         setArticle({
@@ -324,11 +324,11 @@ export default function ArticleDetailPage() {
           </CardHeader>
           <CardContent className="prose max-w-none">
             <div className="whitespace-pre-wrap">{article.content}</div>
-            
+
             {/* Display attached media (video or PDF) */}
-            <ArticleMedia 
+            <ArticleMedia
               mediaType={article.media_type as 'video' | 'pdf' | null}
-              mediaUrl={article.media_url}
+              mediaUrl={article.media_url ?? null}
             />
           </CardContent>
 
@@ -348,9 +348,9 @@ export default function ArticleDetailPage() {
                 <span>{commentsCount} {commentsCount === 1 ? 'comment' : 'comments'}</span>
               )}
             </div>
-            
+
             <Separator className="mb-4" />
-            
+
             {/* Like and Comment Buttons */}
             <div className="flex items-center gap-2">
               <Button
@@ -390,8 +390,8 @@ export default function ArticleDetailPage() {
             entityType="article"
             currentUser={user ? {
               id: user.id,
-              full_name: profile?.full_name || user.firstName || 'User',
-              avatar_url: profile?.avatar_url || user.imageUrl,
+              full_name: profile?.full_name || 'User',
+              avatar_url: profile?.avatar_url ?? undefined,
             } : undefined}
           />
         </div>
