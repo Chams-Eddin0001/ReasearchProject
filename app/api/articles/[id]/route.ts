@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
-// ------------------- PATCH -------------------
+// PATCH - Update article
 export async function PATCH(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> } // ✅ must be Promise
+  context: { params: { id: string } } // ✅ plain object
 ) {
   try {
-    const { id } = await context.params;
+    const { id } = context.params;
 
     const user = await currentUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -65,13 +65,13 @@ export async function PATCH(
   }
 }
 
-// ------------------- DELETE -------------------
+// DELETE - Delete article
 export async function DELETE(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> } // ✅ must be Promise
+  context: { params: { id: string } } // ✅ plain object
 ) {
   try {
-    const { id } = await context.params;
+    const { id } = context.params;
 
     const user = await currentUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
