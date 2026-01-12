@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
-// ------------------- PATCH (Update Article) -------------------
+// ------------------- PATCH -------------------
 export async function PATCH(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> } // ✅ must be Promise
 ) {
   try {
     const { id } = await context.params;
@@ -13,33 +13,19 @@ export async function PATCH(
     const user = await currentUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    // Fetch the article to verify ownership
     const { data: article, error: fetchError } = await supabaseAdmin
       .from("articles")
       .select("created_by")
       .eq("id", id)
       .single();
 
-    if (fetchError || !article) {
-      return NextResponse.json({ error: "Article not found" }, { status: 404 });
-    }
-
-    if (article.created_by !== user.id) {
-      return NextResponse.json(
-        { error: "You do not have permission to update this article" },
-        { status: 403 }
-      );
-    }
+    if (fetchError || !article) return NextResponse.json({ error: "Article not found" }, { status: 404 });
+    if (article.created_by !== user.id) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const body = await request.json();
     const { title, slug, content, excerpt, cover_image, status } = body;
 
-    if (!title?.trim() || !content?.trim()) {
-      return NextResponse.json(
-        { error: "Title and content are required" },
-        { status: 400 }
-      );
-    }
+    if (!title?.trim() || !content?.trim()) return NextResponse.json({ error: "Title and content are required" }, { status: 400 });
 
     // Check slug conflict
     if (slug) {
@@ -49,13 +35,7 @@ export async function PATCH(
         .eq("slug", slug)
         .neq("id", id)
         .maybeSingle();
-
-      if (existingArticle) {
-        return NextResponse.json(
-          { error: "An article with this slug already exists" },
-          { status: 409 }
-        );
-      }
+      if (existingArticle) return NextResponse.json({ error: "Slug already exists" }, { status: 409 });
     }
 
     const updateData = {
@@ -76,37 +56,26 @@ export async function PATCH(
       .select()
       .single();
 
-    if (updateError) {
-      console.error("Error updating article:", updateError);
-      return NextResponse.json(
-        { error: "Failed to update article" },
-        { status: 500 }
-      );
-    }
+    if (updateError) return NextResponse.json({ error: "Failed to update article" }, { status: 500 });
 
     return NextResponse.json(updatedArticle);
   } catch (error: any) {
-    console.error("Server error in PATCH route:", error);
-    return NextResponse.json(
-      { error: error.message || "Internal server error" },
-      { status: 500 }
-    );
+    console.error("PATCH error:", error);
+    return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 });
   }
 }
 
-// ------------------- DELETE (Delete Article) -------------------
+// ------------------- DELETE -------------------
 export async function DELETE(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> } // ✅ must be Promise
 ) {
   try {
     const { id } = await context.params;
-    console.log("DELETE API route called for article:", id);
 
     const user = await currentUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    // Verify ownership
     const { data: article, error: fetchError } = await supabaseAdmin
       .from("articles")
       .select("created_by")
@@ -114,29 +83,18 @@ export async function DELETE(
       .eq("created_by", user.id)
       .single();
 
-    if (fetchError || !article) {
-      return NextResponse.json(
-        { error: "Article not found or you do not have permission to delete it" },
-        { status: 404 }
-      );
-    }
+    if (fetchError || !article) return NextResponse.json({ error: "Not found or no permission" }, { status: 404 });
 
-    // Delete the article
     const { error: deleteError } = await supabaseAdmin
       .from("articles")
       .delete()
       .eq("id", id);
 
-    if (deleteError) {
-      return NextResponse.json({ error: deleteError.message }, { status: 500 });
-    }
+    if (deleteError) return NextResponse.json({ error: deleteError.message }, { status: 500 });
 
     return NextResponse.json({ success: true, message: "Article deleted successfully" });
   } catch (error: any) {
-    console.error("Server error in DELETE route:", error);
-    return NextResponse.json(
-      { error: error.message || "Internal server error" },
-      { status: 500 }
-    );
+    console.error("DELETE error:", error);
+    return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 });
   }
 }
