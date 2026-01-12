@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
-// PATCH - Update article
+// ------------------- PATCH -------------------
 export async function PATCH(
   request: NextRequest,
-  context: { params: { id: string } } // ✅ plain object
+  context: { params: Promise<{ id: string }> } // ✅ Must be Promise
 ) {
   try {
-    const { id } = context.params;
+    const { id } = await context.params; // ✅ Await the Promise
 
     const user = await currentUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -35,6 +35,7 @@ export async function PATCH(
         .eq("slug", slug)
         .neq("id", id)
         .maybeSingle();
+
       if (existingArticle) return NextResponse.json({ error: "Slug already exists" }, { status: 409 });
     }
 
@@ -65,13 +66,13 @@ export async function PATCH(
   }
 }
 
-// DELETE - Delete article
+// ------------------- DELETE -------------------
 export async function DELETE(
   request: NextRequest,
-  context: { params: { id: string } } // ✅ plain object
+  context: { params: Promise<{ id: string }> } // ✅ Must be Promise
 ) {
   try {
-    const { id } = context.params;
+    const { id } = await context.params; // ✅ Await the Promise
 
     const user = await currentUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
